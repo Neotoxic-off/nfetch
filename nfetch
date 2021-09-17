@@ -68,6 +68,7 @@ class NFETCH:
 
     def display(self):
         self.display_host()
+
         self.display_data("os", "    {}".format(self.os["DISTRIB_ID"]))
         self.display_data("wm", "    {}".format(self.window_manager))
         self.display_data("shell", " {}".format(self.shell))
@@ -78,7 +79,7 @@ class NFETCH:
         ))
 
     def display_host(self):
-        print("{}{}{}@{}{}{}".format(
+        print("{}{}{}@{}{}{}\n".format(
             self.logs.colors("purple", 0, "reset"),
             self.username,
             self.logs.colors("reset", 0, "reset"),
