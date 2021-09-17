@@ -14,11 +14,19 @@ class NFETCH:
         self.username = os.environ["USER"]
         self.hostname = socket.gethostname()
         self.kernel = platform.release()
+        self.window_manager = os.environ["GDMSESSION"]
+        self.shell = self.get_shell()
         self.memory = self.get_memory()
         self.os = {}
    
         self.get_os()
         self.display()
+
+    def get_shell(self):
+        path = os.environ["SHELL"]
+        splitted = path.split('/')
+
+        return (splitted[len(splitted) - 1])
 
     def get_memory(self):
         path = "/proc/meminfo"
@@ -61,6 +69,8 @@ class NFETCH:
     def display(self):
         self.display_host()
         self.display_data("os", "    {}".format(self.os["DISTRIB_ID"]))
+        self.display_data("wm", "    {}".format(self.window_manager))
+        self.display_data("shell", " {}".format(self.shell))
         self.display_data("kernel", self.kernel)
         self.display_data("memory", "{} / {}".format(
             self.memory["MemFree"],
