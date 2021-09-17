@@ -5,16 +5,37 @@ import psutil
 import socket
 import platform
 
+from src.logs import LOGS
+
 class NFETCH:
     def __init__(self):
+        self.logs = LOGS()
+
         self.username = os.environ["USER"]
         self.hostname = socket.gethostname()
         self.kernel = platform.release()
-        self.memory = psutil.virtual_memory()[2]
+        self.memory = self.get_memory()
         self.os = {}
-    
+   
         self.get_os()
         self.display()
+
+    def get_memory(self):
+        path = "/proc/meminfo"
+        splitted = None
+        data = None
+        cleanned = {}
+
+        if (os.path.isfile(path) == True):
+            with open(path, 'r') as f:
+                splitted = f.read().split('\n')
+            f.close()
+           
+            for i in splitted:
+                if (':' in i):
+                    data = i.split(':')
+                    cleanned[data[0]] = self.convert(int(data[1].lstrip().split(" kB")[0]))
+            return (cleanned)
 
     def get_os(self):
         path = "/etc/lsb-release"
@@ -32,19 +53,38 @@ class NFETCH:
                 else:
                     previous = i
 
+    def convert(self, kb):
+        return ("{:.2f}M".format(
+            kb / 1000
+        ))
+
     def display(self):
-        print("{}@{}".format(
+        self.display_host()
+        self.display_data("os", "    {}".format(self.os["DISTRIB_ID"]))
+        self.display_data("kernel", self.kernel)
+        self.display_data("memory", "{} / {}".format(
+            self.memory["MemFree"],
+            self.memory["MemTotal"]
+        ))
+
+    def display_host(self):
+        print("{}{}{}@{}{}{}".format(
+            self.logs.colors("purple", 0, "reset"),
             self.username,
-            self.hostname
+            self.logs.colors("reset", 0, "reset"),
+            self.logs.colors("purple", 0, "reset"),
+            self.hostname,
+            self.logs.colors("reset", 0, "reset")
         ))
-        print("os: {}".format(
-            self.os["DISTRIB_ID"]
-        ))
-        print("kernel: {}".format(
-            self.kernel
-        ))
-        print("memory: {}%".format(
-            self.memory
+
+    def display_data(self, d_type, d_value):
+        print("{}{}{}  {}{}{}".format(
+            self.logs.colors("blue", 0, "reset"),
+            d_type,
+            self.logs.colors("reset", 0, "reset"),
+            self.logs.colors("reset", 0, "reset"),
+            d_value,
+            self.logs.colors("reset", 0, "reset")
         ))
 
 if (__name__ == "__main__"):
