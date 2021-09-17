@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import os
+import psutil
+import socket
+import platform
+
+class NFETCH:
+    def __init__(self):
+        self.username = os.environ["USER"]
+        self.hostname = socket.gethostname()
+        self.kernel = platform.release()
+        self.memory = psutil.virtual_memory()[2]
+        self.os = {}
+    
+        self.get_os()
+        self.display()
+
+    def get_os(self):
+        path = "/etc/lsb-release"
+        splitted = None
+        previous = None
+
+        if (os.path.isfile(path) == True):
+            with open(path, 'r') as f:
+                splitted = f.read().replace('\n', '=').split('=')
+            f.close()
+            for i in splitted:
+                if (previous != None):
+                    self.os[previous] = i
+                    previous = None
+                else:
+                    previous = i
+
+    def display(self):
+        print("{}@{}".format(
+            self.username,
+            self.hostname
+        ))
+        print("os: {}".format(
+            self.os["DISTRIB_ID"]
+        ))
+        print("kernel: {}".format(
+            self.kernel
+        ))
+        print("memory: {}%".format(
+            self.memory
+        ))
+
+if (__name__ == "__main__"):
+    NFETCH()
+
